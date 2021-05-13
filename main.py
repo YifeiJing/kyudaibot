@@ -1,11 +1,20 @@
 import os
 import telebot
 import requests
+from datetime import datetime
+from datetime import timedelta
 from bs4 import BeautifulSoup
 
 API_key = os.environ['API_key']
-COVID_API_KEY = os.environ['COVID_API_KEY']
+# COVID_API_KEY = os.environ['COVID_API_KEY']
 bot = telebot.TeleBot(API_key)
+
+url = "https://covid-19-statistics.p.rapidapi.com/reports"
+
+headers = {
+    'x-rapidapi-key': "fd0a050648msh4edbe4e85b03f1fp112b67jsndca9be56e3ba",
+    'x-rapidapi-host': "covid-19-statistics.p.rapidapi.com"
+    }
 
 @bot.message_handler(commands=['Greet', 'Hello'])
 def greet(message):
@@ -17,8 +26,24 @@ def gan(message):
 
 @bot.message_handler(commands=['COVID','corona','コロナ'])
 def getCOVID(message):
-  r = requests.get('https://api.opendata.go.jp/fukuoka-shi/patients-summary?apikey='+COVID_API_KEY)
-  bot.send_message(message.chat.id, r.text)
+  # r = requests.get('https://api.opendata.go.jp/fukuoka-shi/patients-summary?apikey='+COVID_API_KEY)
+  oneday = timedelta(hours=24)
+  today = datetime.today()
+  today_s = str(today).split(' ')[0]
+  counter = 0
+  data_buf = []
+  while(True):
+    curr_day = today - oneday
+    querystring = {"date":str(curr_day).split(' ')[0],"q":"Japan Fukuoka"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    if len(response.json()['data']) != 0:
+      data_buf.append(response.json()['data'])
+      counter += 1
+      if counter == 2:
+        break
+    today = curr_day
+  res_str = '日期：'+ str(data_buf[0][6]['date']) + '，确诊总数：' + str(data_buf[0][6]['confirmed']) + '，较上日增长：' + str(data_buf[0][6]['confirmed_diff']) + '\n地区：' + str(data_buf[0][6]['region'])
+  bot.send_message(message.chat.id, res_str)
 
 @bot.message_handler(commands=['透','艹'])
 def findMessage(message):
