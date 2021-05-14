@@ -20,6 +20,11 @@ headers = {
 def greet(message):
   bot.reply_to(message, 'Hi, this is kyudai TG group bot!')
 
+@bot.message_handler(commands=["ping"])
+def on_ping(message):
+    bot.reply_to(message, "Still alive and kicking!")
+
+
 @bot.message_handler(commands=['淦'])
 def gan(message):
   bot.send_message(message.chat.id, getName(message) +'觉得很淦!')

@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
 url = "https://covid-19-statistics.p.rapidapi.com/reports"
@@ -26,4 +27,22 @@ def tester():
     today = curr_day
   return data_buf
 
-data = tester()
+def get_schedule(name):
+  schedule = []
+  with open(name+'.csv', 'r') as f:
+    pass
+
+def find_schedule(name):
+  today = datetime.today()
+  schedule = get_schedule(name)
+  weekdays = ['月', '火', '水', '木', '金', '土', '日']
+  curr_weekday_num = today.weekday()
+  print('Today is ' + weekdays[curr_weekday_num] + '.')
+  for i in schedule[curr_weekday_num]:
+    print(i)
+# data = tester()
+def getSource():
+  response = requests.get('https://www.pref.fukuoka.lg.jp/contents/covid19-hassei.html')
+  soup = BeautifulSoup(response.text, "html.parser")
+  return soup
+res = getSource()
