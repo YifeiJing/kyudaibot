@@ -49,6 +49,11 @@ def getCOVID(message):
     today = curr_day
   res_str = '日期：'+ str(data_buf[0][6]['date']) + '，确诊总数：' + str(data_buf[0][6]['confirmed']) + '，较上日增长：' + str(data_buf[0][6]['confirmed_diff']) + '\n地区：' + str(data_buf[0][6]['region'])
   bot.send_message(message.chat.id, res_str)
+  stream = os.popen('sh myscript.sh')
+  output = stream.read()
+  output = '昨日地区新增：\n' + output
+  bot.send_message(message.chat.id, output)
+
 
 @bot.message_handler(commands=['透','艹'])
 def findMessage(message):
