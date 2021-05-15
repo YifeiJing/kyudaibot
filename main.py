@@ -97,4 +97,7 @@ def get_article():
     article = f'✏️ <b>Topic</b>:  {topic}\n⚠️ <b>Title</b>:  {title}\n📌 <b>Description</b>:  {description}\n🕒 <b>Published</b>:  {publish_time}\n➡️ <b>Full article</b>: {link}'
     return article
 
-bot.polling()
+try:
+    bot.polling()
+except:
+    bot.polling()
