@@ -68,6 +68,18 @@ def findMessage(message):
 def command_news(message):
 	bot.send_message(message.chat.id, "🆕 Latest BBC article:\n")
 	bot.send_message(message.chat.id, get_article(), parse_mode='HTML')
+@bot.message_handler(commands=['把'])
+def let_done(message):
+    rm = message.reply_to_message
+    if rm is None:
+        return
+    somebody_name = getName(rm)
+    i_name = getName(message)
+    tmp = message.text.split(' ')
+    if len(tmp) != 2:
+        return
+    ret = i_name + '把' + somebody_name + tmp[1] + '!'
+    bot.send_message(message.chat.id, ret)
 
 
 def getName(message):
