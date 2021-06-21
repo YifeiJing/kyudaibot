@@ -1,9 +1,13 @@
 import os
+import sys
 import telebot
 import requests
 from datetime import datetime
 from datetime import timedelta
 from bs4 import BeautifulSoup
+from franch_reader import get_FranchWordList 
+from latin_reader import process
+import random
 
 API_key = os.environ['API_key']
 # COVID_API_KEY = os.environ['COVID_API_KEY']
@@ -16,6 +20,12 @@ headers = {
     'x-rapidapi-host': "covid-19-statistics.p.rapidapi.com"
     }
 
+wordListLatin = process()
+
+def read_franch_list():
+    return get_FranchWordList()
+
+wordListFranch = read_franch_list()
 @bot.message_handler(commands=['Greet', 'Hello'])
 def greet(message):
   bot.reply_to(message, 'Hi, this is kyudai TG group bot!')
@@ -54,6 +64,18 @@ def getCOVID(message):
   output = '昨日地区新增：\n' + output
   bot.send_message(message.chat.id, output)
 
+@bot.message_handler(commands=['bullshit'])
+def bullshit(message):
+    tmp = message.text.split(' ')
+    if len(tmp) == 1 or len(tmp) > 2:
+        bot.send_message(message.chat.id, "Usage:\\bullshit [topic]")
+        return
+    word = tmp[1]
+    sh_input = "cd ~/BullshitGenerator && echo \"{w}\" | python3 自动狗屁不通文章生成器.py"
+    stream = os.popen(sh_input.format(w=word))
+    output = stream.read()
+    bot.send_message(message.chat.id, output[8:])
+
 
 @bot.message_handler(commands=['透','艹'])
 def findMessage(message):
@@ -80,7 +102,35 @@ def let_done(message):
         return
     ret = i_name + '把' + somebody_name + tmp[1] + '!'
     bot.send_message(message.chat.id, ret)
+@bot.message_handler(commands=['exit'])
+def program_exit(message):
+    bot.send_message(message.chat.id, 'Bot shut down\n Moriturus te saluto!')
+    pid = os.getpid()
+    os.system('kill ' + str(pid))
+    sys.exit(0)
+@bot.message_handler(commands=['latin'])
+def produce_latin(message):
+    word, trans = get_latin()
+    bot.send_message(message.chat.id,'Your Latin phrase:\n ' + word)
+    bot.send_message(message.chat.id, 'Meaning:\n '+ trans)
+    return
 
+@bot.message_handler(commands=['franch'])
+def produce_franch(message):
+    phrase = get_franch()
+    bot.send_message(message.chat.id,phrase[0])
+    bot.send_message(message.chat.id,phrase[1])
+    return
+
+def get_latin():
+    table = random.choice(wordListLatin)
+    while len(table) == 0:
+        table = random.choice(wordListLatin)
+    return random.choice(table)
+
+def get_franch():
+    choice = random.choice(wordListFranch)
+    return choice
 
 def getName(message):
   res = ''
@@ -109,7 +159,4 @@ def get_article():
     article = f'✏️ <b>Topic</b>:  {topic}\n⚠️ <b>Title</b>:  {title}\n📌 <b>Description</b>:  {description}\n🕒 <b>Published</b>:  {publish_time}\n➡️ <b>Full article</b>: {link}'
     return article
 
-try:
-    bot.polling()
-except:
-    bot.polling()
+bot.polling()
